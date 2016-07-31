@@ -5,6 +5,7 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -18,8 +19,9 @@ namespace ProxyChecker
     {
         private string _inputPatch;
         private string _outPatch = "d:/OutProxy.txt";
-        private List<Proxy> _proxyList;
-        private List<Proxy> _workProxyList = new List<Proxy>(); 
+        private List<UserProxy> _proxyList;
+        private List<UserProxy> _workProxyList = new List<UserProxy>();
+        private WebRequest _webRequest;
         public Form1(string outPatch, string inputPatch)
         {
             _outPatch = outPatch;
@@ -31,28 +33,84 @@ namespace ProxyChecker
         private void button1_Click(object sender, EventArgs e)
         {
 
-            string url = $"{"https://"}api.twitch.tv/api/channels/{textBoxChannelName.Text}/access_token.json";
-            textBoxChannelName.Text = url;
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+            string url = $"{"http://"}api.twitch.tv/api/channels/{textBoxChannelName.Text}/access_token.json";
+            //textBoxChannelName.Text = url;
+           
             if (_proxyList != null)
                 foreach (var proxy in _proxyList)
                 {
-                  WebProxy myproxy = new WebProxy(proxy.Adress, [your proxy port number]);
-            myproxy.BypassProxyOnLocal = false;
-            request.Proxy = myproxy;
-            request.Method = "GET";
-            HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+                   GetResponse(url,proxy);
+                    //_workProxyList.Add(proxy);
+                    //listBox1.Items.Add(proxy.ToString());
+                    //listBox3.Items.Add($"Proxy Work! {proxy.ToString()}");
                 }
           
 
         }
 
-        public bool IsConnectible(string url)
+        public void IsConnectible(string url, UserProxy userProxy)
         {
-            //Если возвращает говно  json, то идёт нахуй.
-            //запрос к jsonу выше.
-            return false;
-        } 
+            #region sinchronus
+            //_webRequest = (HttpWebRequest)WebRequest.Create(url);
+            //    WebProxy myproxy = new WebProxy(UserProxy.ToString()) {BypassProxyOnLocal = false};
+            //_webRequest.UserProxy = myproxy;
+            //_webRequest.Method = "GET";
+            //try
+            //{
+            //    HttpWebResponse response = (HttpWebResponse)_webRequest.GetResponse();
+            //    return true;
+            //    //_workProxyList.Add(UserProxy);
+            //    //listBox1.Items.Add(UserProxy.ToString());
+            //    //listBox3.Items.Add($"UserProxy Work! {UserProxy.ToString()}");
+
+            //}
+            //catch (Exception e)
+            //{
+            //    listBox3.Items.Add($"{e.Message} with {UserProxy.ToString()}");
+            //    return false;
+            //}
+            #endregion
+            #region Assync
+
+           
+
+#endregion
+
+        }
+
+        async  void GetResponse(string url, UserProxy userProxy)
+        {
+            try
+            {
+              using (HttpClientHandler httpClientHandler = new HttpClientHandler()
+                                                    { Proxy = new WebProxy(userProxy.ToString(),false), UseProxy = true})
+                        {
+                            using (HttpClient httpClient = new HttpClient(httpClientHandler))
+                            {
+                                using (HttpResponseMessage response = await httpClient.GetAsync(url))
+                                {
+                                    using (HttpContent content = response.Content)
+                                    {
+                                        string message = await content.ReadAsStringAsync();
+                                        listBox3.Items.Add(message);
+                                        if (response.IsSuccessStatusCode)
+                                        {
+                                            listBox2.Items.Add(userProxy);
+                                            _workProxyList.Add(userProxy);
+                                            label3.Text = $"Рабочих: {_workProxyList.Count}";
+                                }
+                                    }
+                                }
+                            }   
+                        }
+            }
+            catch (Exception exception)
+            {
+                listBox3.Items.Add($"Trouble with proxy{userProxy.ToString()} {exception.Message}");
+            }
+          
+           
+        }
 
         private void buttonInput_Click(object sender, EventArgs e)
         {
@@ -62,8 +120,8 @@ namespace ProxyChecker
                 if (ofd.ShowDialog() == DialogResult.OK)
                     {
                         _inputPatch = ofd.FileName;
-                        _proxyList = new List<Proxy>();
-                        System.IO.File.ReadAllLines(_inputPatch).ToList().ForEach(x =>_proxyList.Add(new Proxy(x)));
+                        _proxyList = new List<UserProxy>();
+                        System.IO.File.ReadAllLines(_inputPatch).ToList().ForEach(x =>_proxyList.Add(new UserProxy(x)));
                         _proxyList.ForEach(x=>listBox1.Items.Add(x.ToString()));
                         label1.Text = $"Загрузилось: {_proxyList.Count}";
                     }
@@ -84,6 +142,8 @@ namespace ProxyChecker
             {
                 _outPatch = ofd.FileName;
             }
+            //  data.ForEach(Console.WriteLine);
+            System.IO.File.WriteAllText(_outPatch, String.Join("\n",_workProxyList.Select(x=>x.ToString())));
         }
 
         private void buttonAddViewers_Click(object sender, EventArgs e)
@@ -99,15 +159,29 @@ namespace ProxyChecker
             Console.WriteLine(response)
             response.Close() 
              */
+            //_webRequest = (HttpWebRequest)WebRequest.Create(url);
+            //WebProxy myproxy = new WebProxy(proxy.ToString()) { BypassProxyOnLocal = false };
+            //_webRequest.Proxy = myproxy;
+            //_webRequest.Method = "GET";
+            //try
+            //{
+            //    HttpWebResponse response = (HttpWebResponse)_webRequest.GetResponse();
+            //    _logger.Items.Add($"Work! {proxy.ToString()}");
+            //}
+            //catch (Exception e)
+            //{
+            //    _logger.Items.Add($"{e.Message} with {proxy.ToString()}");
+            //    return false;
+            //}
         }
     }
 
-    public class Proxy
+    public class UserProxy
     {
        public string Port { get; set; }
        public string Adress { get; set; }
 
-        public Proxy(string proxyLineFromFile)
+        public UserProxy(string proxyLineFromFile)
         {
             try
             {
@@ -126,7 +200,7 @@ namespace ProxyChecker
 
         public override string ToString()
         {
-            return $"{Adress}:{Port}";
+            return $"http://{Adress}:{Port}";
         }
 
     }
