@@ -143,16 +143,32 @@ namespace ProxyChecker
             {
                 _outPatch = ofd.FileName;
             }
+            WriteInFile(_outPatch);
+
             //  data.ForEach(Console.WriteLine);
-            using (StreamWriter sw = new StreamWriter(_outPatch))
-            {
-                foreach (var userProxy in _workProxyList)
-                {
-                    sw.WriteLineAsync(userProxy.ToString());
-                }
-            }
+            
+           
          //  System.IO.File.WriteAllLines(_outPatch, String.Join("",_workProxyList.Select(x=>x.ToString())));
         }
+
+        private void WriteInFile(string patch)
+        {
+            
+            Task task = new Task(() =>
+            {
+                using (StreamWriter sw = new StreamWriter(patch))
+                {
+                    var _workProxyToFile = _workProxyList;
+                    foreach (var userProxy in _workProxyToFile)
+                    {
+                        sw.WriteLine(userProxy.ToFile());
+                    }
+                }
+
+            });
+            
+            task.Start();
+        } 
 
         private void buttonAddViewers_Click(object sender, EventArgs e)
         {
@@ -209,6 +225,10 @@ namespace ProxyChecker
         public override string ToString()
         {
             return $"http://{Adress}:{Port}";
+        }
+        public string ToFile()
+        {
+            return $"{Adress}:{Port}";
         }
 
     }

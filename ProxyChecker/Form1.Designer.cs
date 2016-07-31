@@ -131,7 +131,6 @@
             this.textBoxChannelName.Name = "textBoxChannelName";
             this.textBoxChannelName.Size = new System.Drawing.Size(100, 20);
             this.textBoxChannelName.TabIndex = 11;
-            this.textBoxChannelName.Text = "Введи канал сюда";
             // 
             // listBox3
             // 
