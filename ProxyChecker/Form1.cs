@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -143,7 +144,14 @@ namespace ProxyChecker
                 _outPatch = ofd.FileName;
             }
             //  data.ForEach(Console.WriteLine);
-            System.IO.File.WriteAllText(_outPatch, String.Join("\n",_workProxyList.Select(x=>x.ToString())));
+            using (StreamWriter sw = new StreamWriter(_outPatch))
+            {
+                foreach (var userProxy in _workProxyList)
+                {
+                    sw.WriteLineAsync(userProxy.ToString());
+                }
+            }
+         //  System.IO.File.WriteAllLines(_outPatch, String.Join("",_workProxyList.Select(x=>x.ToString())));
         }
 
         private void buttonAddViewers_Click(object sender, EventArgs e)
