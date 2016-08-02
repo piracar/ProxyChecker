@@ -40,6 +40,8 @@
             this.textBoxChannelName = new System.Windows.Forms.TextBox();
             this.listBox3 = new System.Windows.Forms.ListBox();
             this.buttonStopAddWiewers = new System.Windows.Forms.Button();
+            this.labelProxyCheckerd = new System.Windows.Forms.Label();
+            this.button2 = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // label1
@@ -132,6 +134,7 @@
             this.textBoxChannelName.Name = "textBoxChannelName";
             this.textBoxChannelName.Size = new System.Drawing.Size(100, 20);
             this.textBoxChannelName.TabIndex = 11;
+            this.textBoxChannelName.Text = "hibify";
             // 
             // listBox3
             // 
@@ -152,11 +155,32 @@
             this.buttonStopAddWiewers.UseVisualStyleBackColor = true;
             this.buttonStopAddWiewers.Click += new System.EventHandler(this.buttonStopAddWiewers_Click);
             // 
+            // labelProxyCheckerd
+            // 
+            this.labelProxyCheckerd.AutoSize = true;
+            this.labelProxyCheckerd.Location = new System.Drawing.Point(455, 183);
+            this.labelProxyCheckerd.Name = "labelProxyCheckerd";
+            this.labelProxyCheckerd.Size = new System.Drawing.Size(35, 13);
+            this.labelProxyCheckerd.TabIndex = 14;
+            this.labelProxyCheckerd.Text = "label2";
+            // 
+            // button2
+            // 
+            this.button2.Location = new System.Drawing.Point(363, 534);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(320, 23);
+            this.button2.TabIndex = 15;
+            this.button2.Text = "button_Input";
+            this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.button2_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1557, 552);
+            this.ClientSize = new System.Drawing.Size(1557, 567);
+            this.Controls.Add(this.button2);
+            this.Controls.Add(this.labelProxyCheckerd);
             this.Controls.Add(this.buttonStopAddWiewers);
             this.Controls.Add(this.listBox3);
             this.Controls.Add(this.textBoxChannelName);
@@ -190,6 +214,8 @@
         private System.Windows.Forms.TextBox textBoxChannelName;
         private System.Windows.Forms.ListBox listBox3;
         private System.Windows.Forms.Button buttonStopAddWiewers;
+        private System.Windows.Forms.Label labelProxyCheckerd;
+        private System.Windows.Forms.Button button2;
     }
 }
 

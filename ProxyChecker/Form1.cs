@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -19,6 +16,7 @@ namespace ProxyChecker
 
     public partial class Form1 : Form
     {
+        private int proxyChecked = 0;
         private bool WindsUp = true;
         private string _inputPatch;
         private string _outPatch = "d:/OutProxy.txt";
@@ -38,7 +36,7 @@ namespace ProxyChecker
 
             string url = $"{"http://"}api.twitch.tv/api/channels/{textBoxChannelName.Text}/access_token.json";
             //textBoxChannelName.Text = url;
-
+            proxyChecked = 0;
             if (_proxyList != null)
             {
                 foreach (var proxy in _proxyList)
@@ -187,22 +185,32 @@ namespace ProxyChecker
 
             #region MyVersion
 
+            var nowChecked = _workProxyList;
             WindsUp = true;
             var uri = $"https://api.twitch.tv/api/channels/{textBoxChannelName}?as3=t&oauth_token=3vxrmk0h14vkgbai50bpiautpbbek52";
-            new Thread(() =>
-            {
-                while (WindsUp)
+            //new Thread(() => { 
+            
+                try
                 {
 
 
-                    foreach (var userProxy in _workProxyList)
+                  //  while (WindsUp)
                     {
-                        UpThemViewers(userProxy, uri);
+                        foreach (var userProxy in nowChecked)
+                        {
+                            UpThemViewers(userProxy, uri);
+                        }
+                        listBox3.Items.Add("SLEEPING");
+                        Thread.Sleep(5000);
                     }
-                    listBox3.Items.Add("SLEEPING");
-                    Thread.Sleep(5000);
                 }
-            });
+                catch (Exception exception)
+                {
+                    listBox3.Items.Add($"{exception.Message}");
+                }
+
+
+//            });
 
             #endregion
         }
@@ -224,6 +232,7 @@ namespace ProxyChecker
                             {
                                 string message = await content.ReadAsStringAsync();
                                 listBox3.Items.Add(message);
+                                labelProxyCheckerd.Text = $"{proxyChecked++}";
                                 if (response.IsSuccessStatusCode)
                                 {
                                     listBox2.Items.Add(userProxy);
@@ -251,8 +260,8 @@ namespace ProxyChecker
                 using (
                     HttpClientHandler httpClientHandler = new HttpClientHandler()
                     {
-                        Proxy = new WebProxy(userProxy.ToString(), false),
-                        UseProxy = true
+                       // Proxy = new WebProxy(userProxy.ToString(), false),
+                       // UseProxy = true
                     })
                 {
                     using (HttpClient httpClient = new HttpClient(httpClientHandler))
@@ -262,6 +271,9 @@ namespace ProxyChecker
                             request.Headers.Add("Connection", "keep-alive");
                             request.Headers.Add("User - Agent",
                                 "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0");
+                            request.Headers.Add("Accept","text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
+                            request.Headers.Host = "api.twitch.tv";
+                            request.Headers.Add("If-None-Match","da8c62af533b83107bc205a550bc650c");
                             using (HttpResponseMessage response = await httpClient.SendAsync(request))
                             {
                                 using (HttpContent content = response.Content)
@@ -284,6 +296,29 @@ namespace ProxyChecker
         private void buttonStopAddWiewers_Click(object sender, EventArgs e)
         {
             WindsUp = false;
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            _workProxyList?.Clear();
+            listBox2.Items?.Clear();
+            try
+            {
+                OpenFileDialog ofd = new OpenFileDialog();
+                if (ofd.ShowDialog() == DialogResult.OK)
+                {
+                    _inputPatch = ofd.FileName;
+                    _proxyList = new List<UserProxy>();
+                    System.IO.File.ReadAllLines(_inputPatch).ToList().ForEach(x => _workProxyList.Add(new UserProxy(x)));
+                    _workProxyList.ForEach(x => listBox2.Items.Add(x.ToString()));
+                    label3.Text = $"Загрузилось: {_proxyList.Count}";
+                }
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception.Message + "  \n ProxyInputFail");
+                throw;
+            }
         }
 
         //public Task<HttpResponseMessage> OptionsAsync(string requestUri,HttpClient httpClient)
