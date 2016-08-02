@@ -39,6 +39,7 @@
             this.labelChannelName = new System.Windows.Forms.Label();
             this.textBoxChannelName = new System.Windows.Forms.TextBox();
             this.listBox3 = new System.Windows.Forms.ListBox();
+            this.buttonStopAddWiewers = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // label1
@@ -110,7 +111,7 @@
             // 
             this.buttonAddViewers.Location = new System.Drawing.Point(458, 91);
             this.buttonAddViewers.Name = "buttonAddViewers";
-            this.buttonAddViewers.Size = new System.Drawing.Size(225, 86);
+            this.buttonAddViewers.Size = new System.Drawing.Size(108, 86);
             this.buttonAddViewers.TabIndex = 9;
             this.buttonAddViewers.Text = "Начать накрутку из чекнутых";
             this.buttonAddViewers.UseVisualStyleBackColor = true;
@@ -141,11 +142,22 @@
             this.listBox3.Size = new System.Drawing.Size(775, 524);
             this.listBox3.TabIndex = 12;
             // 
+            // buttonStopAddWiewers
+            // 
+            this.buttonStopAddWiewers.Location = new System.Drawing.Point(572, 91);
+            this.buttonStopAddWiewers.Name = "buttonStopAddWiewers";
+            this.buttonStopAddWiewers.Size = new System.Drawing.Size(111, 86);
+            this.buttonStopAddWiewers.TabIndex = 13;
+            this.buttonStopAddWiewers.Text = "Остановить накрутку";
+            this.buttonStopAddWiewers.UseVisualStyleBackColor = true;
+            this.buttonStopAddWiewers.Click += new System.EventHandler(this.buttonStopAddWiewers_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1557, 552);
+            this.Controls.Add(this.buttonStopAddWiewers);
             this.Controls.Add(this.listBox3);
             this.Controls.Add(this.textBoxChannelName);
             this.Controls.Add(this.labelChannelName);
@@ -177,6 +189,7 @@
         private System.Windows.Forms.Label labelChannelName;
         private System.Windows.Forms.TextBox textBoxChannelName;
         private System.Windows.Forms.ListBox listBox3;
+        private System.Windows.Forms.Button buttonStopAddWiewers;
     }
 }
 
