@@ -33,8 +33,9 @@ namespace ProxyChecker
         //ButtonStart
         private void button1_Click(object sender, EventArgs e)
         {
-
-            string url = $"{"http://"}api.twitch.tv/api/channels/{textBoxChannelName.Text}/access_token.json";
+            string url =
+                $"https://www-cdn.jtvnw.net/swflibs/TwitchPlayer.r1805fdf8cec14e5e658b83faaf6f985233b9432e.swf?channel={textBoxChannelName.Text}&amp;playerType=faceboo";
+            string url1 = $"http://api.twitch.tv/api/channels/{textBoxChannelName.Text}/access_token.json";
             //textBoxChannelName.Text = url;
             proxyChecked = 0;
             if (_proxyList != null)
@@ -260,8 +261,8 @@ namespace ProxyChecker
                 using (
                     HttpClientHandler httpClientHandler = new HttpClientHandler()
                     {
-                       // Proxy = new WebProxy(userProxy.ToString(), false),
-                       // UseProxy = true
+                        // Proxy = new WebProxy(userProxy.ToString(), false),
+                        // UseProxy = true
                     })
                 {
                     using (HttpClient httpClient = new HttpClient(httpClientHandler))
@@ -271,11 +272,12 @@ namespace ProxyChecker
                             request.Headers.Add("Connection", "keep-alive");
                             request.Headers.Add("User - Agent",
                                 "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0");
-                            request.Headers.Add("Accept","text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
+                            request.Headers.Add("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
                             request.Headers.Host = "api.twitch.tv";
-                            request.Headers.Add("If-None-Match","da8c62af533b83107bc205a550bc650c");
+                            request.Headers.Add("If-None-Match", "da8c62af533b83107bc205a550bc650c");
                             using (HttpResponseMessage response = await httpClient.SendAsync(request))
                             {
+                              
                                 using (HttpContent content = response.Content)
                                 {
                                     var responseString = await content.ReadAsStringAsync();
@@ -289,6 +291,7 @@ namespace ProxyChecker
             catch (Exception exception)
             {
                 listBox3.Items.Add($"Exeption {exception.Message} with proxy{userProxy.ToString()}  ");
+
 
             }
         }
