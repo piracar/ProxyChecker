@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Security.Permissions;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,8 +12,9 @@ using System.Windows.Forms;
 
 namespace ProxyChecker
 {
-    
-    
+
+
+
 
     public partial class Form1 : Form
     {
@@ -25,6 +27,7 @@ namespace ProxyChecker
         private WebRequest _webRequest;
         public Form1(string outPatch, string inputPatch)
         {
+
             _outPatch = outPatch;
             _inputPatch = inputPatch;
             InitializeComponent();
@@ -119,7 +122,6 @@ namespace ProxyChecker
                 catch (Exception exception)
                 {
                     Console.WriteLine(exception.Message+"  \n ProxyInputFail");
-                    throw;
                 }
             }
 
@@ -323,8 +325,19 @@ namespace ProxyChecker
             catch (Exception exception)
             {
                 Console.WriteLine(exception.Message + "  \n ProxyInputFail");
-                throw;
             }
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            listBox1.Items.Clear();
+            _proxyList.Clear();
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            listBox2.Items.Clear();
+            _workProxyList.Clear();
         }
 
         //public Task<HttpResponseMessage> OptionsAsync(string requestUri,HttpClient httpClient)
