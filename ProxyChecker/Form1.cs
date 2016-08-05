@@ -123,6 +123,8 @@ namespace ProxyChecker
                 }
             }
 
+       
+
         private void buttonOutput_Click(object sender, EventArgs e)
         {
             OpenFileDialog ofd = new OpenFileDialog();
@@ -131,6 +133,7 @@ namespace ProxyChecker
                 _outPatch = ofd.FileName;
             }
             WriteInFile(_outPatch);
+
         }
 
         private void WriteInFile(string patch)
