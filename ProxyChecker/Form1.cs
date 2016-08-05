@@ -254,6 +254,7 @@ namespace ProxyChecker
             catch (Exception exception)
             {
                 listBox3.Items.Add($"Trouble with proxy{userProxy.ToString()} {exception.Message}");
+                labelProxyCheckerd.Text = $"{proxyChecked++}";
             }
 
 

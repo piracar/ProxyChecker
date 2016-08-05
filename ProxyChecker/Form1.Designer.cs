@@ -163,7 +163,7 @@
             // labelProxyCheckerd
             // 
             this.labelProxyCheckerd.AutoSize = true;
-            this.labelProxyCheckerd.Location = new System.Drawing.Point(279, 183);
+            this.labelProxyCheckerd.Location = new System.Drawing.Point(174, 21);
             this.labelProxyCheckerd.Name = "labelProxyCheckerd";
             this.labelProxyCheckerd.Size = new System.Drawing.Size(35, 13);
             this.labelProxyCheckerd.TabIndex = 14;
