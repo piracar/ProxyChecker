@@ -64,40 +64,37 @@ namespace ProxyChecker
         //Send request to twitch
       
         //Version 2 of GetResponse
-        async void GetResponse2(string url, UserProxy userProxy)
+        async void GetResponse2(string url)
         {
             try
             {
-                using (HttpClientHandler httpClientHandler = new HttpClientHandler()
-                { Proxy = new WebProxy(userProxy.ToString(), false), UseProxy = true })
+                using (HttpClientHandler httpClientHandler = new HttpClientHandler())
                 {
                     using (HttpClient httpClient = new HttpClient(httpClientHandler))
                     {
-                        httpClient.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0");
-                        httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Host", "api.twitch.tv");
-                        httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Connection", "keep-alive");
-                        //using (HttpResponseMessage response = await OptionsAsync(url,httpClient))
-                        //{
+                        //httpClient.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0");
+                        //httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Host", "api.twitch.tv");
+                        //httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Connection", "keep-alive");
+                        using (HttpResponseMessage response = await httpClient.GetAsync(url))
+                        {
+                            using (HttpContent content = response.Content)
+                            {
+                                string message = await content.ReadAsStringAsync();
+                                listBox3.Items.Add(message);
+                                if (response.IsSuccessStatusCode || message == "CWS�\"")
+                                {
+                                    listBox2.Items.Add("SOSI GUO");
+                                    label3.Text = $"Рабочих: {_workProxyList.Count}";
+                                }
 
-                        //    using (HttpContent content = response.Content)
-                        //    {
-                        //        string message = await content.ReadAsStringAsync();
-                        //        listBox3.Items.Add(message);
-                        //        if (response.IsSuccessStatusCode)
-                        //        {
-                        //            listBox2.Items.Add(userProxy);
-                        //            _workProxyList.Add(userProxy);
-                        //            label3.Text = $"Рабочих: {_workProxyList.Count}";
-                        //        }
-
-                        //    }
-                        //}
+                            }
+                        }
                     }
                 }
             }
             catch (Exception exception)
             {
-                listBox3.Items.Add($"Trouble with proxy{userProxy.ToString()} {exception.Message}");
+               // listBox3.Items.Add($"Trouble with proxy{userProxy.ToString()} {exception.Message}");
             }
 
 
@@ -239,7 +236,7 @@ namespace ProxyChecker
                                 string message = await content.ReadAsStringAsync();
                                 listBox3.Items.Add(message);
                                 labelProxyCheckerd.Text = $"{proxyChecked++}";
-                                if (response.IsSuccessStatusCode)
+                                if (response.IsSuccessStatusCode || message == "CWS�\"")
                                 {
                                     listBox2.Items.Add(userProxy);
                                     _workProxyList.Add(userProxy);
@@ -339,6 +336,13 @@ namespace ProxyChecker
         {
             listBox2.Items.Clear();
             _workProxyList.Clear();
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            string url =
+               $"https://www-cdn.jtvnw.net/swflibs/TwitchPlayer.r1805fdf8cec14e5e658b83faaf6f985233b9432e.swf?channel={textBoxChannelName.Text}&amp;playerType=faceboo";
+            GetResponse2(url);
         }
 
         //public Task<HttpResponseMessage> OptionsAsync(string requestUri,HttpClient httpClient)
