@@ -142,8 +142,8 @@
             // 
             this.listBox3.FormattingEnabled = true;
             this.listBox3.HorizontalScrollbar = true;
+            this.listBox3.IntegralHeight = false;
             this.listBox3.Location = new System.Drawing.Point(437, 12);
-            this.listBox3.MultiColumn = true;
             this.listBox3.Name = "listBox3";
             this.listBox3.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.listBox3.ScrollAlwaysVisible = true;
@@ -203,7 +203,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1557, 567);
+            this.ClientSize = new System.Drawing.Size(873, 567);
             this.Controls.Add(this.button4);
             this.Controls.Add(this.button3);
             this.Controls.Add(this.button2);
