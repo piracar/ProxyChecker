@@ -20,9 +20,11 @@ namespace ProxyChecker
     {
         private int proxyChecked = 0;
         private bool WindsUp = true;
+        private string lapp = "";
         private string _inputPatch;
         private string _outPatch = "d:/OutProxy.txt";
         private List<UserProxy> _proxyList;
+        private List<string> _logger = new List<string>();
         private List<UserProxy> _workProxyList = new List<UserProxy>();
         private WebRequest _webRequest;
         public Form1(string outPatch, string inputPatch)
@@ -34,37 +36,37 @@ namespace ProxyChecker
             label3.Text = $"Рабочих: 0";
         }
         //ButtonStart
-        private void button1_Click(object sender, EventArgs e)
+        private async void button1_Click(object sender, EventArgs e)
         {
             string url =
                 $"https://www-cdn.jtvnw.net/swflibs/TwitchPlayer.r1805fdf8cec14e5e658b83faaf6f985233b9432e.swf?channel={textBoxChannelName.Text}&amp;playerType=faceboo";
-            string url1 = $"http://api.twitch.tv/api/channels/{textBoxChannelName.Text}/access_token.json";
+           // string url1 = $"http://api.twitch.tv/api/channels/{textBoxChannelName.Text}/access_token.json";
             //textBoxChannelName.Text = url;
             proxyChecked = 0;
             if (_proxyList != null)
             {
+                var i = 0;
                 foreach (var proxy in _proxyList)
                 {
-                    GetResponse(url, proxy);
-                    //_workProxyList.Add(proxy);
-                    //listBox1.Items.Add(proxy.ToString());
-                    //istBox3.Items.Add($"Proxy Work! {proxy.ToString()}");
+                    listBox3.Items.Add($"proxy #{++i}");
+                    var x = await CreateMultipleTasksAsync(url, proxy);
+                    if (x.Length>2)
+                    {
+                        listBox3.Items.Add($"Succsess with {proxy.ToFile()}");
+                        _workProxyList.Add(new UserProxy(x));
+                        listBox2.Items.Add(new UserProxy(x).ToString());
+                        continue;
+                    }
+                    listBox3.Items.Add($"Trouble with proxy {proxy.ToFile()}");
+
                 }
             }
         }
 
-        //public void StartRequest(List<UserProxy> proxyListRequest,string url)
-        //{
-        //    foreach (var proxy in proxyListRequest)
-        //    {
-        //        GetResponse2(url, proxy);
-        //    }
 
-        //}
-        //Send request to twitch
-      
-        //Version 2 of GetResponse
-        async void GetResponse2(string url)
+
+
+        async Task<string> GetResponse_govno(string url)
         {
             try
             {
@@ -80,12 +82,14 @@ namespace ProxyChecker
                             using (HttpContent content = response.Content)
                             {
                                 string message = await content.ReadAsStringAsync();
-                                listBox3.Items.Add(message);
-                                if (response.IsSuccessStatusCode || message == "CWS�\"")
-                                {
-                                    listBox2.Items.Add("SOSI GUO");
-                                    label3.Text = $"Рабочих: {_workProxyList.Count}";
-                                }
+                                return message;
+                                //listBox3.Items.Add(message);
+
+                                //if (response.IsSuccessStatusCode || message == "CWS�\"")
+                                //{
+                                //    listBox2.Items.Add("SOSI GUO");
+                                //    label3.Text = $"Рабочих: {_workProxyList.Count}";
+                                //}
 
                             }
                         }
@@ -94,10 +98,11 @@ namespace ProxyChecker
             }
             catch (Exception exception)
             {
-               // listBox3.Items.Add($"Trouble with proxy{userProxy.ToString()} {exception.Message}");
+                // listBox3.Items.Add($"Trouble with proxy{userProxy.ToString()} {exception.Message}");
             }
 
 
+            return null;
         }
 
         private void buttonInput_Click(object sender, EventArgs e)
@@ -122,7 +127,6 @@ namespace ProxyChecker
                 }
             }
 
-       
 
         private void buttonOutput_Click(object sender, EventArgs e)
         {
@@ -218,6 +222,89 @@ namespace ProxyChecker
             #endregion
         }
 
+        //private async bool GetResponse2(string url, UserProxy userProxy)
+        //{
+        //    try
+        //    {
+        //        using (HttpClientHandler httpClientHandler = new HttpClientHandler()
+        //        { Proxy = new WebProxy(userProxy.ToString(), false), UseProxy = true })
+        //        {
+        //            using (HttpClient httpClient = new HttpClient(httpClientHandler))
+        //            {
+        //                using (HttpResponseMessage response = await httpClient.GetAsync(url))
+        //                {
+        //                    using (HttpContent content = response.Content)
+        //                    {
+        //                        string message = await content.ReadAsStringAsync();
+
+        //                        listBox3.Items.Add(message);
+        //                        // labelProxyCheckerd.Text = $"{proxyChecked++}";
+        //                        if (response.IsSuccessStatusCode)
+        //                        {
+        //                            //    lapp += $"{message}; \n";
+        //                            //    textBoxChannelName.Text = lapp;
+        //                            listBox2.Items.Add(userProxy);
+        //                            _workProxyList.Add(userProxy);
+        //                            label3.Text = $"Рабочих: {_workProxyList.Count}";
+        //                            return true;
+        //                        }
+        //                        return false;
+        //                    }
+        //                }
+        //            }
+        //        }
+        //    }
+        //    catch (Exception exception)
+        //    {
+        //        listBox3.Items.Add($"Trouble with proxy{userProxy.ToString()} {exception.Message}");
+        //        labelProxyCheckerd.Text = $"{proxyChecked++}";
+        //    }
+
+
+        //    return false;
+        //}
+
+        private async Task<string> CreateMultipleTasksAsync(string url, UserProxy userProxy)
+        {
+            using (
+                HttpClientHandler httpClientHandler = new HttpClientHandler()
+                {
+                    Proxy = new WebProxy(userProxy.ToString(), false),
+                    UseProxy = true
+                })
+            {
+                try
+                {
+                    HttpClient client = new HttpClient(httpClientHandler);
+                    Task<bool> isSuccessTask = ProcessURLAsync(url, client);
+                    bool isGoodProxy = await isSuccessTask;
+                    if (isGoodProxy)
+                    {
+                        _workProxyList.Add(userProxy);
+                        return userProxy.ToFile();
+                    }
+                }
+                catch (Exception)
+                {
+                    return "";
+                }
+
+                return "";
+            }
+
+        }
+        async Task<bool> ProcessURLAsync(string url, HttpClient client)
+        {
+
+            var returnString = await client.GetAsync(url);
+            //DisplayResults(url, byteArray);
+            if (returnString.IsSuccessStatusCode)
+            {
+                return true;
+            }
+            return false;
+        }
+
         private async void GetResponse(string url, UserProxy userProxy)
         {
             try
@@ -227,17 +314,18 @@ namespace ProxyChecker
                 {
                     using (HttpClient httpClient = new HttpClient(httpClientHandler))
                     {
-
                         using (HttpResponseMessage response = await httpClient.GetAsync(url))
                         {
-
                             using (HttpContent content = response.Content)
                             {
                                 string message = await content.ReadAsStringAsync();
+                                
                                 listBox3.Items.Add(message);
-                                labelProxyCheckerd.Text = $"{proxyChecked++}";
-                                if (response.IsSuccessStatusCode || message == "CWS�\"")
+                               // labelProxyCheckerd.Text = $"{proxyChecked++}";
+                                if (response.IsSuccessStatusCode)
                                 {
+                                //    lapp += $"{message}; \n";
+                                //    textBoxChannelName.Text = lapp;
                                     listBox2.Items.Add(userProxy);
                                     _workProxyList.Add(userProxy);
                                     label3.Text = $"Рабочих: {_workProxyList.Count}";
@@ -340,9 +428,28 @@ namespace ProxyChecker
 
         private void button5_Click(object sender, EventArgs e)
         {
-            string url =
+            Task  task = new Task((() =>
+            {
+                  string url =
                $"https://www-cdn.jtvnw.net/swflibs/TwitchPlayer.r1805fdf8cec14e5e658b83faaf6f985233b9432e.swf?channel={textBoxChannelName.Text}&amp;playerType=faceboo";
-            GetResponse2(url);
+            }));
+            task.Start();
+          
+            //Task task = new Task(() =>
+            //{
+            //    using (StreamWriter sw = new StreamWriter(patch))
+            //    {
+            //        var _workProxyToFile = _workProxyList;
+            //        foreach (var userProxy in _workProxyToFile)
+            //        {
+            //            sw.WriteLine(userProxy.ToFile());
+            //        }
+            //    }
+
+            //});
+
+            //task.Start();
+
         }
 
         //public Task<HttpResponseMessage> OptionsAsync(string requestUri,HttpClient httpClient)
