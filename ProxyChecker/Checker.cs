@@ -10,42 +10,37 @@ using ProxyChecker;
 
 namespace ProxyChecker
 {
-     class Checker
+    public class Checker
     {
        
          public Checker(List<string> logger, List<UserProxy> proxies, string uri)
          {
-             Logger = logger;
-             Proxies = proxies;
-             this.uri = uri;
+           Proxies = proxies;
+             Uri = uri;
          }
 
          //    static readonly Uri[] Uris = Enumerable.Range(0, 250).Select(_ => new Uri("http://ya.ru/")).ToArray();
         //    static readonly ConcurrentQueue<Uri> Queue = new ConcurrentQueue<Uri>();
-        public List<string> Logger { get; set; }
-        public List<UserProxy> Proxies { get; set; }
-        public string uri { get; set; }
+       // public List<string> Logger { get; set; }
+        public static List<UserProxy> Proxies { get; set; }
+        public static string Uri { get; set; }
         public ConcurrentQueue<UserProxy> ProxiesQueue;
-        private List<UserProxy> _workProxies =  new List<UserProxy>();
+        //private List<UserProxy> _workProxies =  new List<UserProxy>();
 
-        public List<UserProxy>  Exec(string name, Action<Action> run)
+        public bool  Exec(string name, Action<Action,IProgress<string>,IProgress<UserProxy>> run, IProgress<string> logger, IProgress<UserProxy> workProxyes)
         {
             var watch = Stopwatch.StartNew();
 
             var completed = new ManualResetEvent(false);
-            run(() => completed.Set());
+            run(() => completed.Set(),logger,workProxyes);
+            //DoWorkAsync_proxy();
             completed.WaitOne();
 
             watch.Stop();
-            return _workProxies;
+            return true;
             //Console.WriteLine("{0} took {1} ms", name, watch.ElapsedMilliseconds);
         }
-
-         public ProxyCallBack GetStats()
-         {
-            return new ProxyCallBack(_workProxies,Logger);
-         }
-        public void DoWorkAsync_proxy(Action whenDone)
+        public static void DoWorkAsync_proxy(Action whenDone, IProgress<string> logger, IProgress<UserProxy> workProxyes)
         {
             var syncRoot = new object();
             var counter = Proxies.Count;
@@ -69,7 +64,7 @@ namespace ProxyChecker
             {
                 foreach (var proxy in Proxies)
                 {
-                    LoadUriAsync_proxyes(proxy, Success_proxy, Failure_proxy, handler);
+                    LoadUriAsync_proxyes(proxy, Success_proxy, Failure_proxy, handler,logger,workProxyes);
                 }
 
                 completed.WaitOne();
@@ -81,7 +76,7 @@ namespace ProxyChecker
             }
         }
 
-        private void LoadUriAsync_proxyes(UserProxy proxy, Action<UserProxy, string> success, Action<UserProxy, Exception> failure, Action completed)
+        private static void LoadUriAsync_proxyes(UserProxy proxy, Action<UserProxy, string, IProgress<string>, IProgress<UserProxy>> success, Action<UserProxy, Exception, IProgress<string>> failure, Action completed, IProgress<string> logger, IProgress<UserProxy> workProxyes)
         {
             var request = CreateRequest(proxy);
             request.BeginGetResponse(asyncResult =>
@@ -96,13 +91,13 @@ namespace ProxyChecker
                         {
                             var dataContent = reader.ReadToEnd();
                             var headers = response.Headers.ToString();
-                            success(proxy, headers + dataContent);
+                            success(proxy, headers + dataContent,logger,workProxyes);
                         }
                     }
                 }
                 catch (Exception e)
                 {
-                    failure(proxy,e);
+                    failure(proxy,e,logger);
                 }
                 finally
                 {
@@ -111,9 +106,10 @@ namespace ProxyChecker
             }, null);
         }
 
-        private HttpWebRequest CreateRequest(UserProxy proxy)
+        private static HttpWebRequest CreateRequest(UserProxy proxy)
         {
-            var request = (HttpWebRequest) WebRequest.Create(uri);
+            
+            var request = (HttpWebRequest) WebRequest.Create(Uri);
             request.Proxy = new WebProxy(proxy.ToString());
             request.CookieContainer = new CookieContainer();
             request.AllowAutoRedirect = false;
@@ -123,27 +119,18 @@ namespace ProxyChecker
             return request;
         }
 
-        private void Success_proxy(UserProxy proxy, string content)
+        private static void Success_proxy(UserProxy proxy, string content,IProgress<string> logger, IProgress<UserProxy> workProxyes)
         {
-            _workProxies.Add(proxy);           
-            Logger.Add($"{content} with proxy:{proxy.ToFile()}");
+            //_workProxies.Add(proxy);           
+            //Logger.Add($"{content} with proxy:{proxy.ToFile()}");
+            workProxyes.Report(proxy);
+            logger.Report($"{content} with proxy:{proxy.ToFile()}");
         }
 
-        private void Failure_proxy(UserProxy proxy,Exception e)
+        private static void Failure_proxy(UserProxy proxy,Exception e,IProgress<string> logger )
         {
-            Logger.Add($"{e.Message} with proxy:{proxy.ToFile()}");
+        //    Logger.Add($"{e.Message} with proxy:{proxy.ToFile()}");
+            logger.Report($"{e.Message} with proxy:{proxy.ToFile()}");
         }
-    }
 }
-
-class ProxyCallBack
-{
-    public List<UserProxy> Proxies { get; set; }
-    public List<string> Logger { get; set; }
-
-    public ProxyCallBack(List<UserProxy> proxies, List<string> logger)
-    {
-        this.Proxies = proxies;
-        this.Logger = logger;
-    }
 }

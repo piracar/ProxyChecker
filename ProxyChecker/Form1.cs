@@ -45,41 +45,33 @@ namespace ProxyChecker
             proxyChecked = 0;
             if (_proxyList != null)
             {
-                Task task = new Task(() =>
+                //Task task = new Task(() =>
+                //{
+                //    Checker checker = new Checker(_logger, _proxyList, url);
+                //    var x = checker.Exec("Start AsyncRequest!", checker.DoWorkAsync_proxy);
+                  
+                //});
+                //task.Start();
+                var progressLog = new Progress<string>(s=>listBox3.Items.Add(s));
+                var progressProxy = new Progress<UserProxy>(s=>_workProxyList.Add(s));
+                Task.Factory.StartNew(() =>
                 {
-                    Checker checker = new Checker(_logger, _proxyList, url);
-                    var x = checker.Exec("Start AsyncRequest!", checker.DoWorkAsync_proxy);
-                    Thread.Sleep(2000);
-                    while (true)
-                    {
-                        var stat = checker.GetStats();
-                        listBox3.Items.Clear();
-                        foreach (var variable in stat.Logger)
-                        {
-                            listBox3.Items.Add(variable);
-                        }
-                        listBox2.Items.Clear();
-                        foreach (var variable in stat.Proxies)
-                        {
-                            listBox2.Items.Add(variable);
-                        }
-                        Thread.Sleep(5000);
-                    }
-                    foreach (var VARIABLE in checker.Logger)
-                    {
-                        listBox3.Items.Add(VARIABLE);
-                    }
-                    foreach (var proxy in x)
-                    {
-                        listBox2.Items.Add(proxy);
-                    }
+                    var action =  Checker.DoWorkAsync_proxy()
+                    var x = new Checker(_logger,_proxyList,url);
+                    new Checker(_logger, _proxyList, url).Exec("RunAsync", Checker.DoWorkAsync_proxy(), progressLog,progressProxy);
 
                 });
-                task.Start();
 
             }
         }
 
+        public void StartRequest(Action<Action> run, Progress<string> progressLog, Progress<UserProxy> progressProxy,Checker checker )
+        {
+            Task.Factory.StartNew(() =>
+            {
+                checker.Exec("Kappa",)
+            });
+        }
 
 
         //void LoadUri(Uri uri, Action<string> processor)
