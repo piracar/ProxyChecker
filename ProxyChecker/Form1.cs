@@ -63,7 +63,47 @@ namespace ProxyChecker
             }
         }
 
+        private void runTasks(List<Task> runnedTasks, int maxTaskCount,string url)
+        {
+            var j = 0;
+            for (int i = 0; i < maxTaskCount; i++)
+            {
+                try
+                {
+                    //if (tasks[i]!=null)
+                    {
+                        var task = Task.Run(() =>
+                        {
+                           var x =  Request(GetProxy(j), url);
+                           
+                            
+                          
+                        });
+                        task.ContinueWith((x) =>
+                        {
+                          x.
+                        });
 
+                    }
+                }
+                catch (Exception)
+                {
+                   return; 
+                }
+            }   
+        }
+
+        private UserProxy GetProxy(int Number)
+        {
+            try
+            {
+                return _proxyList[Number];
+            }
+            catch (Exception exception)
+            {
+                return null;
+            }
+        }
 
 
         async Task<string> GetResponse_govno(string url)
@@ -305,6 +345,46 @@ namespace ProxyChecker
             return false;
         }
 
+        public async Task<HttpResponseMessage> Request( UserProxy proxy,string uri)
+        {
+            using (
+                HttpClientHandler httpClientHandler = new HttpClientHandler()
+                {
+                    Proxy = new WebProxy(this.ToString(), false),
+                    UseProxy = true
+                })
+            {
+                try
+                {
+                    HttpClient client = new HttpClient(httpClientHandler);
+                    return await client.GetAsync(uri);
+
+                    #region oldCode
+
+                    //DisplayResults(url, byteArray);
+                    //if (returnString.IsSuccessStatusCode)
+                    //{
+                    //    return true;
+                    //}
+                    //return false;
+                    //Task<bool> isSuccessTask = ProcessURLAsync(url, client);
+                    //bool isGoodProxy = await isSuccessTask;
+                    //if (isGoodProxy)
+                    //{
+                    //    _workProxyList.Add(userProxy);
+                    //    return userProxy.ToFile();
+                    //}
+
+                    #endregion
+                }
+                catch (Exception)
+                {
+                    return null;
+                }
+
+            }
+        }
+
         private async void GetResponse(string url, UserProxy userProxy)
         {
             try
@@ -519,6 +599,43 @@ namespace ProxyChecker
         {
             return $"{Adress}:{Port}";
         }
+
+        //public async Task<HttpResponseMessage> Request(string url)
+        //{
+        //    using (
+        //        HttpClientHandler httpClientHandler = new HttpClientHandler()
+        //        {
+        //            Proxy = new WebProxy(this.ToString(), false),
+        //            UseProxy = true
+        //        })
+        //    {
+        //        try
+        //        {
+        //            HttpClient client = new HttpClient(httpClientHandler);
+        //            return await client.GetAsync(url);
+        //            #region oldCode
+        //            //DisplayResults(url, byteArray);
+        //            //if (returnString.IsSuccessStatusCode)
+        //            //{
+        //            //    return true;
+        //            //}
+        //            //return false;
+        //            //Task<bool> isSuccessTask = ProcessURLAsync(url, client);
+        //            //bool isGoodProxy = await isSuccessTask;
+        //            //if (isGoodProxy)
+        //            //{
+        //            //    _workProxyList.Add(userProxy);
+        //            //    return userProxy.ToFile();
+        //            //}
+        //            #endregion
+        //        }
+        //        catch (Exception)
+        //        {
+        //            return null;
+        //        }
+
+        //    }
+        //}
 
     }
 }
