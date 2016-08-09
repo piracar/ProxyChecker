@@ -53,106 +53,110 @@ namespace ProxyChecker
                 //});
                 //task.Start();
                 var progressLog = new Progress<string>(s=>listBox3.Items.Add(s));
-                var progressProxy = new Progress<UserProxy>(s=>_workProxyList.Add(s));
-                Task.Factory.StartNew(() =>
+                var progressProxy = new Progress<UserProxy>(s=>
                 {
-                    var action =  Checker.DoWorkAsync_proxy()
-                    var x = new Checker(_logger,_proxyList,url);
-                    new Checker(_logger, _proxyList, url).Exec("RunAsync", Checker.DoWorkAsync_proxy(), progressLog,progressProxy);
-
+                    _workProxyList.Add(s);
+                    listBox2.Items.Add(s);
                 });
+                //Task.Factory.StartNew(() =>
+                //{
+                //    var action =  Checker.DoWorkAsync_proxy()
+                //    var x = new Checker(_logger,_proxyList,url);
+                //    new Checker(_logger, _proxyList, url).Exec("RunAsync", Checker.DoWorkAsync_proxy(), progressLog,progressProxy);
 
+                //});
+                StartRequest(progressLog,progressProxy,new Checker(_logger,_proxyList,url));
             }
         }
 
-        public void StartRequest(Action<Action> run, Progress<string> progressLog, Progress<UserProxy> progressProxy,Checker checker )
+        public void StartRequest(Progress<string> progressLog, Progress<UserProxy> progressProxy,Checker checker )
         {
             Task.Factory.StartNew(() =>
-            {
-                checker.Exec("Kappa",)
-            });
-        }
+            
+                checker.Exec("Kappa"/*Checker.DoWorkAsync_proxy*/, progressLog, progressProxy),TaskCreationOptions.LongRunning);
+           
+       }
 
 
-        //void LoadUri(Uri uri, Action<string> processor)
-        //{
-        //    var request = (HttpWebRequest)WebRequest.Create(uri);
-        //    request.CookieContainer = new CookieContainer();
-        //    request.AllowAutoRedirect = false;
-        //    request.Timeout = 30000;
-        //    request.UserAgent = "Mozilla/5.0 (Windows; U; Windows NT 5.1; ru; rv:1.9.0.19) Gecko/2010031422 Firefox/3.0.19";
+    //void LoadUri(Uri uri, Action<string> processor)
+    //{
+    //    var request = (HttpWebRequest)WebRequest.Create(uri);
+    //    request.CookieContainer = new CookieContainer();
+    //    request.AllowAutoRedirect = false;
+    //    request.Timeout = 30000;
+    //    request.UserAgent = "Mozilla/5.0 (Windows; U; Windows NT 5.1; ru; rv:1.9.0.19) Gecko/2010031422 Firefox/3.0.19";
 
-        //    using (var response = (HttpWebResponse)request.GetResponse())
-        //    {
-        //        response.Cookies = request.CookieContainer.GetCookies(request.RequestUri);
+    //    using (var response = (HttpWebResponse)request.GetResponse())
+    //    {
+    //        response.Cookies = request.CookieContainer.GetCookies(request.RequestUri);
 
-        //        using (var stream = response.GetResponseStream())
-        //        using (var reader = new StreamReader(stream, Encoding.GetEncoding(1251)))
-        //        {
-        //            var dataContent = reader.ReadToEnd();
-        //            var headers = response.Headers.ToString();
-        //            processor(headers + dataContent);
-        //        }
-        //    }
-        //}
+    //        using (var stream = response.GetResponseStream())
+    //        using (var reader = new StreamReader(stream, Encoding.GetEncoding(1251)))
+    //        {
+    //            var dataContent = reader.ReadToEnd();
+    //            var headers = response.Headers.ToString();
+    //            processor(headers + dataContent);
+    //        }
+    //    }
+    //}
 
-        //void Process(string content)
-        //{
-        //    Console.WriteLine(content);
-        //}
-        //private UserProxy GetProxy(int Number)
-        //{
-        //    try
-        //    {
-        //        return _proxyList[Number];
-        //    }
-        //    catch (Exception exception)
-        //    {
-        //        return null;
-        //    }
-        //}
-
-
-        //async Task<string> GetResponse_govno(string url)
-        //{
-        //    try
-        //    {
-        //        using (HttpClientHandler httpClientHandler = new HttpClientHandler())
-        //        {
-        //            using (HttpClient httpClient = new HttpClient(httpClientHandler))
-        //            {
-        //                //httpClient.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0");
-        //                //httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Host", "api.twitch.tv");
-        //                //httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Connection", "keep-alive");
-        //                using (HttpResponseMessage response = await httpClient.GetAsync(url))
-        //                {
-        //                    using (HttpContent content = response.Content)
-        //                    {
-        //                        string message = await content.ReadAsStringAsync();
-        //                        return message;
-        //                        //listBox3.Items.Add(message);
-
-        //                        //if (response.IsSuccessStatusCode || message == "CWS�\"")
-        //                        //{
-        //                        //    listBox2.Items.Add("SOSI GUO");
-        //                        //    label3.Text = $"Рабочих: {_workProxyList.Count}";
-        //                        //}
-
-        //                    }
-        //                }
-        //            }
-        //        }
-        //    }
-        //    catch (Exception exception)
-        //    {
-        //        // listBox3.Items.Add($"Trouble with proxy{userProxy.ToString()} {exception.Message}");
-        //    }
+    //void Process(string content)
+    //{
+    //    Console.WriteLine(content);
+    //}
+    //private UserProxy GetProxy(int Number)
+    //{
+    //    try
+    //    {
+    //        return _proxyList[Number];
+    //    }
+    //    catch (Exception exception)
+    //    {
+    //        return null;
+    //    }
+    //}
 
 
-        //    return null;
-        //}
+    //async Task<string> GetResponse_govno(string url)
+    //{
+    //    try
+    //    {
+    //        using (HttpClientHandler httpClientHandler = new HttpClientHandler())
+    //        {
+    //            using (HttpClient httpClient = new HttpClient(httpClientHandler))
+    //            {
+    //                //httpClient.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0");
+    //                //httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Host", "api.twitch.tv");
+    //                //httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Connection", "keep-alive");
+    //                using (HttpResponseMessage response = await httpClient.GetAsync(url))
+    //                {
+    //                    using (HttpContent content = response.Content)
+    //                    {
+    //                        string message = await content.ReadAsStringAsync();
+    //                        return message;
+    //                        //listBox3.Items.Add(message);
 
-        private void buttonInput_Click(object sender, EventArgs e)
+    //                        //if (response.IsSuccessStatusCode || message == "CWS�\"")
+    //                        //{
+    //                        //    listBox2.Items.Add("SOSI GUO");
+    //                        //    label3.Text = $"Рабочих: {_workProxyList.Count}";
+    //                        //}
+
+    //                    }
+    //                }
+    //            }
+    //        }
+    //    }
+    //    catch (Exception exception)
+    //    {
+    //        // listBox3.Items.Add($"Trouble with proxy{userProxy.ToString()} {exception.Message}");
+    //    }
+
+
+    //    return null;
+    //}
+
+    private void buttonInput_Click(object sender, EventArgs e)
         {
             _proxyList?.Clear();
             listBox1.Items?.Clear();
