@@ -121,7 +121,7 @@ namespace ProxyChecker
                      UseProxy = true
                     })
                 {
-                    using (HttpClient httpClient = new HttpClient(httpClientHandler) { Timeout = new TimeSpan(0, 0, 0, 20, 500) })
+                    using (HttpClient httpClient = new HttpClient(httpClientHandler) { /*Timeout = new TimeSpan(0, 0, 0, 20, 500)*/ })
                     {
                         using (HttpResponseMessage response = await httpClient.GetAsync(Uri))
                         {
@@ -130,7 +130,7 @@ namespace ProxyChecker
                                 string message = await content.ReadAsStringAsync();
                                 var headers = content.Headers.ToString();
                                 if (response.IsSuccessStatusCode)
-                                    success(proxy, headers + message, logger, workProxyes);
+                                    success(proxy, headers + message,logger, workProxyes);
                                 else
                                     throw new Exception();
                             }
