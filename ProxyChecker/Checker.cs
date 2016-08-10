@@ -8,6 +8,7 @@ using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using ProxyChecker;
 
 namespace ProxyChecker
@@ -30,54 +31,54 @@ namespace ProxyChecker
         //private List<UserProxy> _workProxies =  new List<UserProxy>();
 
 
-        public bool  Exec(string name, /*Action<Action,IProgress<string>,IProgress<UserProxy>> run*/ IProgress<string> logger, IProgress<UserProxy> workProxyes)
+        public void  Exec(string name, /*Action<Action,IProgress<string>,IProgress<UserProxy>> run*/ IProgress<string> logger, IProgress<UserProxy> workProxyes)
         {
             //var watch = Stopwatch.StartNew();
 
             //var completed = new ManualResetEvent(false);
             //run(() => completed.Set(),logger,workProxyes);
+            //switch (name)
+            //{
+            //    case "common check":
+            //    {
+            //            DoWorkAsync_proxy(logger, workProxyes);
+            //    }
+            //    case "ban check":
+            //    {
+                        
+            //    }
+            //}
+            //if (name == "standartCheck")
+            //{
+            //    DoWorkAsync_proxy(logger, workProxyes);
+            //}
+            //if (name ==)
+            //{
+                
+            //}
             DoWorkAsync_proxy(logger,workProxyes);
+            
             //DoWorkAsync_proxy();
            // completed.WaitOne();
 
            // watch.Stop();
-            return true;
+           // return true;
             //Console.WriteLine("{0} took {1} ms", name, watch.ElapsedMilliseconds);
         }
-        public static void DoWorkAsync_proxy(/*Action whenDone,*/ IProgress<string> logger, IProgress<UserProxy> workProxyes)
+        public static  void DoWorkAsync_proxy(/*Action whenDone,*/ IProgress<string> logger, IProgress<UserProxy> workProxyes)
         {
-            var syncRoot = new object();
-            var counter = Proxies.Count;
-           // var completed = new ManualResetEvent(false);
-            
-            //Action handler = () =>
-            //{
-            //  //  lock (syncRoot)
-            //    //{
-            //    //    counter--;
-            //    //    if (counter > 0)
-            //    //    {
-            //    //        return;
-            //    //    }
-            //    //}
-
-            //    //completed.Set();
-            //};
-
-            try
+           try
             {
+              
                 foreach (var proxy in Proxies)
                 {
-                    Thread.Sleep(20);
+                    Thread.Sleep(30);
                     LoadUriAsycnNew_proxy(proxy, Success_proxy, Failure_proxy, /*handler,*/logger,workProxyes);
                 }
-
-               // completed.WaitOne();
-             //   whenDone();
             }
             catch (Exception)
             {
-               // whenDone();
+              
             }
         }
 
@@ -112,25 +113,31 @@ namespace ProxyChecker
             }, null);
         }
 
-        private static async void LoadUriAsycnNew_proxy(UserProxy proxy, Action<UserProxy, string, IProgress<string>, IProgress<UserProxy>> success, Action<UserProxy, Exception, IProgress<string>> failure, /*Action completed,*/ IProgress<string> logger, IProgress<UserProxy> workProxyes)
+        private static async void LoadUriAsycnNew_proxy(UserProxy proxy,Action<UserProxy, string, IProgress<string>, IProgress<UserProxy>> success,Action<UserProxy, Exception, IProgress<string>> failure, /*Action completed,*/ IProgress<string> logger,IProgress<UserProxy> workProxyes)
         {
             try
             {
-                using (HttpClientHandler httpClientHandler = new HttpClientHandler(){
-                     Proxy = new WebProxy(proxy.ToString(), false),
-                     UseProxy = true
-                    })
+                using (HttpClientHandler httpClientHandler = new HttpClientHandler()
                 {
-                    using (HttpClient httpClient = new HttpClient(httpClientHandler) { /*Timeout = new TimeSpan(0, 0, 0, 20, 500)*/ })
+                    Proxy = new WebProxy(proxy.ToString(), false),
+                    UseProxy = true
+                })
+                {
+                    using (
+                        HttpClient httpClient = new HttpClient(httpClientHandler)
+                        {
+                            Timeout = new TimeSpan(0, 0, 5, 10)
+                        })
                     {
                         using (HttpResponseMessage response = await httpClient.GetAsync(Uri))
                         {
                             using (HttpContent content = response.Content)
                             {
-                                string message = await content.ReadAsStringAsync();
+                                //string message = await content.ReadAsStringAsync();
                                 var headers = content.Headers.ToString();
-                                if (response.IsSuccessStatusCode)
-                                    success(proxy, headers + message,logger, workProxyes);
+                                var x = response.Headers.Connection.ToString();
+                               if (response.IsSuccessStatusCode && x=="keep-alive")
+                                    success(proxy, headers +"", logger, workProxyes);
                                 else
                                     throw new Exception();
                             }
@@ -143,12 +150,53 @@ namespace ProxyChecker
             {
                 failure(proxy, e, logger);
             }
+        }
+
+        //finally
+            //{
+            //    completed();
+            //}
+
+       private static async void LoadUriAsycnNew1( /*Action completed,*/)
+       {
+           try
+            {
+                {
+                    using (HttpClient httpClient = new HttpClient() { /*Timeout = new TimeSpan(0, 0, 0, 20, 500)*/ })
+                    {
+                        using (HttpResponseMessage response = await httpClient.GetAsync(Uri))
+                        {
+                            using (HttpContent content = response.Content)
+                            {
+                               // var responseHeaders = response.Headers;
+                                var headers = content.Headers.ToString();
+                                if (response.Headers.ToString().IndexOf("Connection: keep-alive", StringComparison.Ordinal) == 0)
+                                {
+                                    Console.WriteLine("tiLOx");
+                                };
+                                if (response.IsSuccessStatusCode)
+                                {
+                                    headers.ToString();
+                                }
+
+                            }
+                        }
+                    }
+
+                }
+            }
+            catch (Exception e)
+            {
+                throw;
+            }
             //finally
             //{
             //    completed();
             //}
 
-        }
+          // return null;
+       }
+    
 
         private static HttpWebRequest CreateRequest(UserProxy proxy)
         {
@@ -186,4 +234,6 @@ namespace ProxyChecker
             logger.Report($"{e.Message} with proxy:{proxy.ToFile()}");
         }
 }
+
+    
 }

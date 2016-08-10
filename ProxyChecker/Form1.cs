@@ -18,14 +18,14 @@ namespace ProxyChecker
 
     public partial class Form1 : Form
     {
-        private int proxyChecked = 0;
-        private bool WindsUp = true;
-        private string lapp = "";
+        private int _proxyChecked = 0;
+        private bool _windsUp = true;
         private string _inputPatch;
         private string _outPatch = "d:/OutProxy.txt";
         private List<UserProxy> _proxyList;
         private List<string> _logger = new List<string>();
         private List<UserProxy> _workProxyList = new List<UserProxy>();
+        private List<UserProxy> _notBanProxyList = new List<UserProxy>();
         private WebRequest _webRequest;
         public Form1(string outPatch, string inputPatch)
         {
@@ -40,121 +40,50 @@ namespace ProxyChecker
         {
             string url =
                 $"https://www-cdn.jtvnw.net/swflibs/TwitchPlayer.r1805fdf8cec14e5e658b83faaf6f985233b9432e.swf?channel={textBoxChannelName.Text}&amp;playerType=faceboo";
-           // string url1 = $"http://api.twitch.tv/api/channels/{textBoxChannelName.Text}/access_token.json";
-            //textBoxChannelName.Text = url;
-            proxyChecked = 0;
+         _proxyChecked = 0;
             if (_proxyList != null)
             {
-                //Task task = new Task(() =>
-                //{
-                //    Checker checker = new Checker(_logger, _proxyList, url);
-                //    var x = checker.Exec("Start AsyncRequest!", checker.DoWorkAsync_proxy);
-                  
-                //});
-                //task.Start();
-                var progressLog = new Progress<string>(s=>listBox3.Items.Add(s));
+                
+                var progressLog = new Progress<string>(s=>
+                {
+                    listBox3.Items.Add(s);
+                    label2.Text = $"Пришло {(_proxyChecked++).ToString()}ответов и ошибок";
+                });
                 var progressProxy = new Progress<UserProxy>(s=>
                 {
                     _workProxyList.Add(s);
                     listBox2.Items.Add(s);
                 });
-                //Task.Factory.StartNew(() =>
-                //{
-                //    var action =  Checker.DoWorkAsync_proxy()
-                //    var x = new Checker(_logger,_proxyList,url);
-                //    new Checker(_logger, _proxyList, url).Exec("RunAsync", Checker.DoWorkAsync_proxy(), progressLog,progressProxy);
-
-                //});
-                StartRequest(progressLog,progressProxy,new Checker(_logger,_proxyList,url));
+               StartRequest(progressLog,progressProxy,new Checker(_logger,_proxyList,url));
             }
         }
+
+        private void button7_Click(object sender, EventArgs e)
+        {
+            var i = 0;
+            string url = $"http://api.twitch.tv/api/channels/{textBoxChannelName.Text}/access_token.json";
+           if (_workProxyList != null)
+            {
+                
+                var progressLog = new Progress<string>(s => listBox3.Items.Add(s));
+                var progressProxy = new Progress<UserProxy>(s =>
+                {
+                    _notBanProxyList.Add(s);
+                    listBox4.Items.Add(s);
+                    label6.Text = $"Пришло {i++}";
+                });
+               StartRequest(progressLog, progressProxy, new Checker(_logger, _workProxyList, url));
+            }
+        }
+
 
         public void StartRequest(Progress<string> progressLog, Progress<UserProxy> progressProxy,Checker checker )
         {
             Task.Factory.StartNew(() =>
             
-                checker.Exec("Kappa"/*Checker.DoWorkAsync_proxy*/, progressLog, progressProxy),TaskCreationOptions.LongRunning);
+                checker.Exec("Kappa", progressLog, progressProxy),TaskCreationOptions.LongRunning);
            
        }
-
-
-    //void LoadUri(Uri uri, Action<string> processor)
-    //{
-    //    var request = (HttpWebRequest)WebRequest.Create(uri);
-    //    request.CookieContainer = new CookieContainer();
-    //    request.AllowAutoRedirect = false;
-    //    request.Timeout = 30000;
-    //    request.UserAgent = "Mozilla/5.0 (Windows; U; Windows NT 5.1; ru; rv:1.9.0.19) Gecko/2010031422 Firefox/3.0.19";
-
-    //    using (var response = (HttpWebResponse)request.GetResponse())
-    //    {
-    //        response.Cookies = request.CookieContainer.GetCookies(request.RequestUri);
-
-    //        using (var stream = response.GetResponseStream())
-    //        using (var reader = new StreamReader(stream, Encoding.GetEncoding(1251)))
-    //        {
-    //            var dataContent = reader.ReadToEnd();
-    //            var headers = response.Headers.ToString();
-    //            processor(headers + dataContent);
-    //        }
-    //    }
-    //}
-
-    //void Process(string content)
-    //{
-    //    Console.WriteLine(content);
-    //}
-    //private UserProxy GetProxy(int Number)
-    //{
-    //    try
-    //    {
-    //        return _proxyList[Number];
-    //    }
-    //    catch (Exception exception)
-    //    {
-    //        return null;
-    //    }
-    //}
-
-
-    //async Task<string> GetResponse_govno(string url)
-    //{
-    //    try
-    //    {
-    //        using (HttpClientHandler httpClientHandler = new HttpClientHandler())
-    //        {
-    //            using (HttpClient httpClient = new HttpClient(httpClientHandler))
-    //            {
-    //                //httpClient.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0");
-    //                //httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Host", "api.twitch.tv");
-    //                //httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Connection", "keep-alive");
-    //                using (HttpResponseMessage response = await httpClient.GetAsync(url))
-    //                {
-    //                    using (HttpContent content = response.Content)
-    //                    {
-    //                        string message = await content.ReadAsStringAsync();
-    //                        return message;
-    //                        //listBox3.Items.Add(message);
-
-    //                        //if (response.IsSuccessStatusCode || message == "CWS�\"")
-    //                        //{
-    //                        //    listBox2.Items.Add("SOSI GUO");
-    //                        //    label3.Text = $"Рабочих: {_workProxyList.Count}";
-    //                        //}
-
-    //                    }
-    //                }
-    //            }
-    //        }
-    //    }
-    //    catch (Exception exception)
-    //    {
-    //        // listBox3.Items.Add($"Trouble with proxy{userProxy.ToString()} {exception.Message}");
-    //    }
-
-
-    //    return null;
-    //}
 
     private void buttonInput_Click(object sender, EventArgs e)
         {
@@ -186,19 +115,19 @@ namespace ProxyChecker
             {
                 _outPatch = ofd.FileName;
             }
-            WriteInFile(_outPatch);
+            WriteInFile(_outPatch,_workProxyList);
 
         }
 
-        private void WriteInFile(string patch)
+        private void WriteInFile(string patch,List<UserProxy> proxyList )
         {
             
             Task task = new Task(() =>
             {
                 using (StreamWriter sw = new StreamWriter(patch))
                 {
-                    var _workProxyToFile = _workProxyList;
-                    foreach (var userProxy in _workProxyToFile)
+                    var workProxyToFile = proxyList;
+                    foreach (var userProxy in workProxyToFile)
                     {
                         sw.WriteLine(userProxy.ToFile());
                     }
@@ -481,7 +410,7 @@ namespace ProxyChecker
 
         private void buttonStopAddWiewers_Click(object sender, EventArgs e)
         {
-            WindsUp = false;
+            _windsUp = false;
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -527,56 +456,22 @@ namespace ProxyChecker
             }));
             task.Start();
           
-            //Task task = new Task(() =>
-            //{
-            //    using (StreamWriter sw = new StreamWriter(patch))
-            //    {
-            //        var _workProxyToFile = _workProxyList;
-            //        foreach (var userProxy in _workProxyToFile)
-            //        {
-            //            sw.WriteLine(userProxy.ToFile());
-            //        }
-            //    }
-
-            //});
-
-            //task.Start();
-
+          
         }
 
-        //public Task<HttpResponseMessage> OptionsAsync(string requestUri,HttpClient httpClient)
-        //{
-        //    return httpClient.SendAsync(new HttpRequestMessage(HttpMethod.Options, requestUri));
-        //} 
+        private void button6_Click(object sender, EventArgs e)
+        {
+            listBox4.Items.Clear();
+        }
 
-        //private async void AddViewers()
-        //{
-        //                 string url = $"http:/{"/"}player.twitch.tv/?channel={textBoxChannelName}&html5";
-        //    try
-        //    {
-        //        using (HttpClientHandler httpClientHandler = new HttpClientHandler())
-        //        {
-        //            using (HttpClient httpClient = new HttpClient(httpClientHandler))
-        //            {
-
-        //                using (HttpResponseMessage response = await OptionsAsync(url,httpClient))
-        //                {
-
-        //                    using (HttpContent content = response.Content)
-        //                    {
-        //                        string message = await content.ReadAsStringAsync();
-        //                        listBox3.Items.Add(message);
-
-
-        //                    }
-        //                }
-        //            }
-        //        }
-        //    } 
-        //    catch (Exception exception)
-        //    {
-        //        listBox3.Items.Add($"ADDVIVER MESSAGE {exception.Message}");
-        //    }
-        //}
+        private void button8_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog ofd = new OpenFileDialog();
+            if (ofd.ShowDialog() == DialogResult.OK)
+            {
+                _outPatch = ofd.FileName;
+            }
+            WriteInFile(_outPatch,_notBanProxyList);
+        }
     }
 }
