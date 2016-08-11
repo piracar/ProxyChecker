@@ -16,54 +16,22 @@ namespace ProxyChecker
     public class Checker
     {
        
-         public Checker(List<string> logger, List<UserProxy> proxies, string uri)
+         public Checker(List<UserProxy> proxies, string uri)
          {
            Proxies = proxies;
              Uri = uri;
          }
-
-         //    static readonly Uri[] Uris = Enumerable.Range(0, 250).Select(_ => new Uri("http://ya.ru/")).ToArray();
-        //    static readonly ConcurrentQueue<Uri> Queue = new ConcurrentQueue<Uri>();
-       // public List<string> Logger { get; set; }
+        
         public static List<UserProxy> Proxies { get; set; }
         public static string Uri { get; set; }
         public ConcurrentQueue<UserProxy> ProxiesQueue;
-        //private List<UserProxy> _workProxies =  new List<UserProxy>();
-
-
-        public void  Exec(string name, /*Action<Action,IProgress<string>,IProgress<UserProxy>> run*/ IProgress<string> logger, IProgress<UserProxy> workProxyes)
+       
+        public void  Exec(string name,  IProgress<string> logger, IProgress<UserProxy> workProxyes)
         {
-            //var watch = Stopwatch.StartNew();
-
-            //var completed = new ManualResetEvent(false);
-            //run(() => completed.Set(),logger,workProxyes);
-            //switch (name)
-            //{
-            //    case "common check":
-            //    {
-            //            DoWorkAsync_proxy(logger, workProxyes);
-            //    }
-            //    case "ban check":
-            //    {
-                        
-            //    }
-            //}
-            //if (name == "standartCheck")
-            //{
-            //    DoWorkAsync_proxy(logger, workProxyes);
-            //}
-            //if (name ==)
-            //{
-                
-            //}
+          
             DoWorkAsync_proxy(logger,workProxyes);
             
-            //DoWorkAsync_proxy();
-           // completed.WaitOne();
-
-           // watch.Stop();
-           // return true;
-            //Console.WriteLine("{0} took {1} ms", name, watch.ElapsedMilliseconds);
+            
         }
         public static  void DoWorkAsync_proxy(/*Action whenDone,*/ IProgress<string> logger, IProgress<UserProxy> workProxyes)
         {
@@ -72,7 +40,7 @@ namespace ProxyChecker
               
                 foreach (var proxy in Proxies)
                 {
-                    Thread.Sleep(30);
+                  //  Thread.Sleep(10);
                     LoadUriAsycnNew_proxy(proxy, Success_proxy, Failure_proxy, /*handler,*/logger,workProxyes);
                 }
             }
@@ -113,7 +81,10 @@ namespace ProxyChecker
             }, null);
         }
 
-        private static async void LoadUriAsycnNew_proxy(UserProxy proxy,Action<UserProxy, string, IProgress<string>, IProgress<UserProxy>> success,Action<UserProxy, Exception, IProgress<string>> failure, /*Action completed,*/ IProgress<string> logger,IProgress<UserProxy> workProxyes)
+        private static async void LoadUriAsycnNew_proxy(UserProxy proxy,
+            Action<UserProxy, string, IProgress<string>, IProgress<UserProxy>> success,
+            Action<UserProxy, Exception, IProgress<string>> failure, /*Action completed,*/ IProgress<string> logger,
+            IProgress<UserProxy> workProxyes)
         {
             try
             {
@@ -133,11 +104,10 @@ namespace ProxyChecker
                         {
                             using (HttpContent content = response.Content)
                             {
-                                //string message = await content.ReadAsStringAsync();
                                 var headers = content.Headers.ToString();
                                 var x = response.Headers.Connection.ToString();
-                               if (response.IsSuccessStatusCode && x=="keep-alive")
-                                    success(proxy, headers +"", logger, workProxyes);
+                                if (response.IsSuccessStatusCode && x == "keep-alive")
+                                    success(proxy, headers + "", logger, workProxyes);
                                 else
                                     throw new Exception();
                             }
@@ -150,14 +120,14 @@ namespace ProxyChecker
             {
                 failure(proxy, e, logger);
             }
+            finally
+            {
+                GC.Collect();
+                
+            }
         }
 
-        //finally
-            //{
-            //    completed();
-            //}
-
-       private static async void LoadUriAsycnNew1( /*Action completed,*/)
+        private static async void LoadUriAsycnNew1( /*Action completed,*/)
        {
            try
             {
@@ -211,15 +181,7 @@ namespace ProxyChecker
             return request;
         }
 
-        private static HttpClient CreateRequest_proxy(UserProxy proxy)
-        {
-            var httpClientHandler = new HttpClientHandler();
-            //{Proxy = new WebProxy(proxy.ToString(), false), UseProxy = true,AllowAutoRedirect = false};
-            var client = new HttpClient(httpClientHandler) {Timeout = new TimeSpan(0, 0, 0, 10, 500)};
-           // client.DefaultRequestHeaders.Add("User-Agent","Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2;WOW64; Trident / 6.0)");
-            return client;
-        }
-
+       
         private static void Success_proxy(UserProxy proxy, string content,IProgress<string> logger, IProgress<UserProxy> workProxyes)
         {
             //_workProxies.Add(proxy);           
