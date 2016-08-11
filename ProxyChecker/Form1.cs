@@ -103,7 +103,7 @@ namespace ProxyChecker
                 }
                 catch (Exception exception)
                 {
-                    Console.WriteLine(exception.Message+"  \n ProxyInputFail");
+                    listBox3.Items.Add(exception.Message+"  \n ProxyInputFail");
                 }
             }
 
@@ -423,10 +423,10 @@ namespace ProxyChecker
                 if (ofd.ShowDialog() == DialogResult.OK)
                 {
                     _inputPatch = ofd.FileName;
-                    _proxyList = new List<UserProxy>();
+                    _workProxyList = new List<UserProxy>();
                     System.IO.File.ReadAllLines(_inputPatch).ToList().ForEach(x => _workProxyList.Add(new UserProxy(x)));
                     _workProxyList.ForEach(x => listBox2.Items.Add(x.ToString()));
-                    label3.Text = $"Загрузилось: {_proxyList.Count}";
+                    label3.Text = $"Загрузилось: {_workProxyList.Count}";
                 }
             }
             catch (Exception exception)
@@ -472,6 +472,25 @@ namespace ProxyChecker
                 _outPatch = ofd.FileName;
             }
             WriteInFile(_outPatch,_notBanProxyList);
+        }
+
+        private void button9_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                OpenFileDialog ofd = new OpenFileDialog();
+                if (ofd.ShowDialog() == DialogResult.OK)
+                {
+                    _inputPatch = ofd.FileName;
+                     System.IO.File.ReadAllLines(_inputPatch).ToList().ForEach(x => _workProxyList.Add(new UserProxy(x)));
+                    _workProxyList.ForEach(x => listBox1.Items.Add(x.ToString()));
+                    label3.Text = $"Загрузилось: {_workProxyList.Count}";
+                }
+            }
+            catch (Exception exception)
+            {
+                listBox3.Items.Add(exception.Message + "  \n ProxyInputFail");
+            }
         }
     }
 }
