@@ -1,4 +1,6 @@
-﻿using System;
+﻿#region
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -6,24 +8,26 @@ using System.Net;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
+#endregion
+
 namespace ProxyChecker
 {
     public partial class Form1 : Form
     {
-        private string _inputPatch;
-        private readonly List<string> _logger = new List<string>();
+       // private readonly List<string> _logger = new List<string>();
         private readonly List<UserProxy> _notBanProxyList = new List<UserProxy>();
-        private string _outPatch = "d:/OutProxy.txt";
+       // private string _inputPatch;
+       // private string _outPatch = "d:/OutProxy.txt";
         private List<UserProxy> _proxyList = new List<UserProxy>();
         private WebRequest _webRequest;
         //private int _proxyChecked = 0;
         private bool _windsUp = true;
         private List<UserProxy> _workProxyList = new List<UserProxy>();
 
-        public Form1(string outPatch, string inputPatch)
+        public Form1(/*string outPatch, string inputPatch*/)
         {
-            _outPatch = outPatch;
-            _inputPatch = inputPatch;
+            //_outPatch = outPatch;
+            //_inputPatch = inputPatch;
             InitializeComponent();
             label3.Text = $"Рабочих: 0";
         }
@@ -87,12 +91,11 @@ namespace ProxyChecker
             listBox1.Items?.Clear();
             try
             {
-                var ofd = new OpenFileDialog();
-                if (ofd.ShowDialog() == DialogResult.OK)
+                var patch = givePatch();
+                if (patch != "")
                 {
-                    _inputPatch = ofd.FileName;
                     _proxyList = new List<UserProxy>();
-                    File.ReadAllLines(_inputPatch).ToList().ForEach(x => _proxyList.Add(new UserProxy(x)));
+                    File.ReadAllLines(patch).ToList().ForEach(x => _proxyList.Add(new UserProxy(x)));
                     if (_proxyList.Count > 500)
                         for (var i = 0; i < 499; i++)
                             listBox1.Items.Add(_proxyList[i].ToString());
@@ -101,22 +104,36 @@ namespace ProxyChecker
                     label1.Text = $"Загрузилось: {_proxyList.Count}";
                 }
             }
-            catch (Exception exception)
+
+            catch (
+                Exception exception
+                )
             {
                 listBox3.Items.Add(exception.Message + "  \n ProxyInputFail");
+            }
+        }
+
+        private string givePatch()
+        {
+            using (var ofd = new OpenFileDialog())
+            {
+                if (ofd.ShowDialog() == DialogResult.OK)
+                {
+                    return ofd.FileName;
+                }
+                return "";
             }
         }
 
 
         private void buttonOutput_Click(object sender, EventArgs e)
         {
-            var ofd = new OpenFileDialog();
-            if (ofd.ShowDialog() == DialogResult.OK)
+            var patch = givePatch();
+            if (patch != "")
             {
-                _outPatch = ofd.FileName;
+                WriteInFile(patch, _workProxyList);
             }
-            WriteInFile(_outPatch, _workProxyList);
-        }
+         }
 
         private void WriteInFile(string patch, List<UserProxy> proxyList)
         {
@@ -420,12 +437,11 @@ namespace ProxyChecker
             listBox2.Items?.Clear();
             try
             {
-                var ofd = new OpenFileDialog();
-                if (ofd.ShowDialog() == DialogResult.OK)
+                var patch = givePatch();
+                if (patch != "")
                 {
-                    _inputPatch = ofd.FileName;
                     _workProxyList = new List<UserProxy>();
-                    File.ReadAllLines(_inputPatch).ToList().ForEach(x => _workProxyList.Add(new UserProxy(x)));
+                    File.ReadAllLines(patch).ToList().ForEach(x => _workProxyList.Add(new UserProxy(x)));
                     _workProxyList.ForEach(x => listBox2.Items.Add(x.ToString()));
                     label3.Text = $"Загрузилось: {_workProxyList.Count}";
                 }
@@ -466,52 +482,50 @@ namespace ProxyChecker
 
         private void button8_Click(object sender, EventArgs e)
         {
-            var ofd = new OpenFileDialog();
-            if (ofd.ShowDialog() == DialogResult.OK)
+            var patch = givePatch();
+            if (patch != "")
             {
-                _outPatch = ofd.FileName;
+                WriteInFile(patch, _notBanProxyList);
             }
-            WriteInFile(_outPatch, _notBanProxyList);
         }
 
         private void showLogButton_Click(object sender, EventArgs e)
         {
+            GC.Collect();
             listBox3.Visible = !listBox3.Visible;
             if (listBox3.Visible)
             {
-                
                 showLogButton.Text = "Убрать лог";
             }
             else
             {
                 showLogButton.Text = "Показать лог";
             }
-            
         }
 
-        //}
-        //    GC.Collect();
-        //    task1.RunSynchronously();
-        //  });
-        //    }
-        //        listBox3.Items.Add(exception.Message + "  \n ProxyInputFail");
-        //    {
-        //    catch (Exception exception)
-        //    }
-        //        }
-        //            label1.Text = $"Загрузилось: {_proxyList.Count}";
-        //            _proxyList.ForEach(x => listBox1.Items.Add(x.ToString()));
-        //             System.IO.File.ReadAllLines(_inputPatch).ToList().ForEach(x => _proxyList.Add(new UserProxy(x)));
-        //            _inputPatch = ofd.FileName;
-        //        {
-        //        if (ofd.ShowDialog() == DialogResult.OK)
-        //        OpenFileDialog ofd = new OpenFileDialog();
-        //    {
-        //      try
-        //  {
-        //  Task task1= new Task(() =>
-        //{
-
         //private void button9_Click(object sender, EventArgs e)
+        //{
+        //  Task task1= new Task(() =>
+        //  {
+        //      try
+        //    {
+        //        OpenFileDialog ofd = new OpenFileDialog();
+        //        if (ofd.ShowDialog() == DialogResult.OK)
+        //        {
+        //            _inputPatch = ofd.FileName;
+        //             System.IO.File.ReadAllLines(_inputPatch).ToList().ForEach(x => _proxyList.Add(new UserProxy(x)));
+        //            _proxyList.ForEach(x => listBox1.Items.Add(x.ToString()));
+        //            label1.Text = $"Загрузилось: {_proxyList.Count}";
+        //        }
+        //    }
+        //    catch (Exception exception)
+        //    {
+        //        listBox3.Items.Add(exception.Message + "  \n ProxyInputFail");
+        //    }
+        //  });
+        //    task1.RunSynchronously();
+        //    GC.Collect();
+
+        //}
     }
 }

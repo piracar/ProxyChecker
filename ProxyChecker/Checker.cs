@@ -44,43 +44,12 @@ namespace ProxyChecker
                     LoadUriAsycnNew_proxy(proxy, Success_proxy, Failure_proxy, /*handler,*/logger,workProxyes);
                 }
             }
-            catch (Exception)
-            {
-              
-            }
+           catch (Exception)
+           {
+               // ignored
+           }
         }
-
-        private static void LoadUriAsync_proxy(UserProxy proxy, Action<UserProxy, string, IProgress<string>, IProgress<UserProxy>> success, Action<UserProxy, Exception, IProgress<string>> failure, Action completed, IProgress<string> logger, IProgress<UserProxy> workProxyes)
-        {
-            
-            var request = CreateRequest(proxy);
-            request.BeginGetResponse(asyncResult =>
-            {
-                try
-                {
-                    using (var response = (HttpWebResponse) request.EndGetResponse(asyncResult))
-                    {
-                        response.Cookies = request.CookieContainer.GetCookies(request.RequestUri);
-                        using (var stream = response.GetResponseStream())
-                        using (var reader = new StreamReader(stream, Encoding.GetEncoding(1251)))
-                        {
-                            var dataContent = reader.ReadToEnd();
-                            var headers = response.Headers.ToString();
-                            success(proxy, headers + dataContent,logger,workProxyes);
-                        }
-                    }
-                }
-                catch (Exception e)
-                {
-                    failure(proxy,e,logger);
-                }
-                finally
-                {
-                    completed();
-                }
-            }, null);
-        }
-
+        
         private static async void LoadUriAsycnNew_proxy(UserProxy proxy,
             Action<UserProxy, string, IProgress<string>, IProgress<UserProxy>> success,
             Action<UserProxy, Exception, IProgress<string>> failure, /*Action completed,*/ IProgress<string> logger,
@@ -88,8 +57,10 @@ namespace ProxyChecker
         {
             try
             {
+                
                 using (HttpClientHandler httpClientHandler = new HttpClientHandler()
                 {
+                   
                     Proxy = new WebProxy(proxy.ToString(), false),
                     UseProxy = true
                 })
@@ -122,63 +93,8 @@ namespace ProxyChecker
             }
             finally
             {
-                GC.Collect();
-                
+               
             }
-        }
-
-        private static async void LoadUriAsycnNew1( /*Action completed,*/)
-       {
-           try
-            {
-                {
-                    using (HttpClient httpClient = new HttpClient() { /*Timeout = new TimeSpan(0, 0, 0, 20, 500)*/ })
-                    {
-                        using (HttpResponseMessage response = await httpClient.GetAsync(Uri))
-                        {
-                            using (HttpContent content = response.Content)
-                            {
-                               // var responseHeaders = response.Headers;
-                                var headers = content.Headers.ToString();
-                                if (response.Headers.ToString().IndexOf("Connection: keep-alive", StringComparison.Ordinal) == 0)
-                                {
-                                    Console.WriteLine("tiLOx");
-                                };
-                                if (response.IsSuccessStatusCode)
-                                {
-                                    headers.ToString();
-                                }
-
-                            }
-                        }
-                    }
-
-                }
-            }
-            catch (Exception e)
-            {
-                throw;
-            }
-            //finally
-            //{
-            //    completed();
-            //}
-
-          // return null;
-       }
-    
-
-        private static HttpWebRequest CreateRequest(UserProxy proxy)
-        {
-            
-            var request = (HttpWebRequest) WebRequest.Create(Uri);
-            request.Proxy = new WebProxy(proxy.ToString());
-            request.CookieContainer = new CookieContainer();
-            request.AllowAutoRedirect = false;
-            request.Timeout = 2000;
-            request.UserAgent =
-                "Mozilla/5.0 (Windows; U; Windows NT 5.1; ru; rv:1.9.0.19) Gecko/2010031422 Firefox/3.0.19";
-            return request;
         }
 
        

@@ -16,7 +16,7 @@ namespace ProxyChecker
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Form1("d:/kappaInput","d:/kappaOutput.txt"));
+            Application.Run(new Form1());
             //
         }
     }
