@@ -16,12 +16,14 @@ namespace ProxyChecker
     public class Checker
     {
        
-         public Checker(List<UserProxy> proxies, string uri)
+         public Checker(List<UserProxy> proxies, string uri, TimeSpan userTimeout)
          {
            Proxies = proxies;
              Uri = uri;
+             UserTimeout = userTimeout;
          }
-        
+
+        public static TimeSpan UserTimeout { get; set; } 
         public static List<UserProxy> Proxies { get; set; }
         public static string Uri { get; set; }
         public ConcurrentQueue<UserProxy> ProxiesQueue;
@@ -40,7 +42,7 @@ namespace ProxyChecker
               
                 foreach (var proxy in Proxies)
                 {
-                  //  Thread.Sleep(10);
+                   Thread.Sleep(0);
                     LoadUriAsycnNew_proxy(proxy, Success_proxy, Failure_proxy, /*handler,*/logger,workProxyes);
                 }
             }
@@ -57,10 +59,10 @@ namespace ProxyChecker
         {
             try
             {
-                
+
                 using (HttpClientHandler httpClientHandler = new HttpClientHandler()
                 {
-                   
+
                     Proxy = new WebProxy(proxy.ToString(), false),
                     UseProxy = true
                 })
@@ -68,7 +70,7 @@ namespace ProxyChecker
                     using (
                         HttpClient httpClient = new HttpClient(httpClientHandler)
                         {
-                            Timeout = new TimeSpan(0, 0, 5, 10)
+                            Timeout = UserTimeout
                         })
                     {
                         using (HttpResponseMessage response = await httpClient.GetAsync(Uri))
@@ -89,11 +91,19 @@ namespace ProxyChecker
             }
             catch (Exception e)
             {
-                failure(proxy, e, logger);
+                if (e.Message.Contains("в поток"))
+                {
+                    success(proxy, "", logger, workProxyes);
+                    //LoadUriAsycnNew_proxy(proxy, Success_proxy, Failure_proxy, logger, workProxyes);
+                }
+                else
+                {
+                    failure(proxy, e, logger);
+                }
             }
             finally
             {
-               
+                //GC.Collect();
             }
         }
 

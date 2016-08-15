@@ -14,38 +14,32 @@ namespace ProxyChecker
 {
     public partial class Form1 : Form
     {
-       // private readonly List<string> _logger = new List<string>();
+      
         private readonly List<UserProxy> _notBanProxyList = new List<UserProxy>();
-       // private string _inputPatch;
-       // private string _outPatch = "d:/OutProxy.txt";
         private List<UserProxy> _proxyList = new List<UserProxy>();
-        private WebRequest _webRequest;
-        //private int _proxyChecked = 0;
-        private bool _windsUp = true;
         private List<UserProxy> _workProxyList = new List<UserProxy>();
 
-        public Form1(/*string outPatch, string inputPatch*/)
+        public Form1()
         {
-            //_outPatch = outPatch;
-            //_inputPatch = inputPatch;
             InitializeComponent();
             label3.Text = $"Рабочих: 0";
+            labelTrackBar.Text = trackBar1.Value.ToString();
         }
 
         //ButtonStart
         private void button1_Click(object sender, EventArgs e)
         {
             string url =
-                $"https://www-cdn.jtvnw.net/swflibs/TwitchPlayer.r1805fdf8cec14e5e658b83faaf6f985233b9432e.swf?channel={textBoxChannelName.Text}&amp;playerType=faceboo";
-            // _proxyChecked = 0;
+                // $"https://www-cdn.jtvnw.net/swflibs/TwitchPlayer.r1805fdf8cec14e5e658b83faaf6f985233b9432e.swf?channel={textBoxChannelName.Text}&amp;playerType=faceboo";
+                $"http://api.twitch.tv/api/channels/{textBoxChannelName.Text}/access_token.json";
             var proxygood = 0;
-            var _proxyChecked = 0;
+            var proxyChecked = 0;
             if (_proxyList != null)
             {
                 var progressLog = new Progress<string>(s =>
                 {
                     listBox3.Items.Add(s);
-                    label2.Text = $"Пришло {_proxyChecked++.ToString()}ответов и ошибок";
+                    label2.Text = $"Пришло {proxyChecked++.ToString()}ответов и ошибок";
                 });
                 var progressProxy = new Progress<UserProxy>(s =>
                 {
@@ -53,7 +47,7 @@ namespace ProxyChecker
                     _workProxyList.Add(s);
                     listBox2.Items.Add(s);
                 });
-                StartRequest(progressLog, progressProxy, new Checker(_proxyList, url));
+                StartRequest(progressLog, progressProxy, new Checker(_proxyList, url, new TimeSpan(0, 0, 0, 0, trackBar1.Value)));
             }
         }
 
@@ -65,7 +59,6 @@ namespace ProxyChecker
             {
                 var progressLog = new Progress<string>(s =>
                 {
-                    //_logger.Add(s);
                     listBox3.Items.Add(s);
                 });
                 var progressProxy = new Progress<UserProxy>(s =>
@@ -74,7 +67,7 @@ namespace ProxyChecker
                     listBox4.Items.Add(s);
                     label6.Text = $"Пришло {i++}";
                 });
-                StartRequest(progressLog, progressProxy, new Checker(_workProxyList, url));
+                StartRequest(progressLog, progressProxy, new Checker(_workProxyList, url,new TimeSpan(0,0,0,0,trackBar1.Value)));
             }
         }
 
@@ -94,14 +87,16 @@ namespace ProxyChecker
                 var patch = givePatch();
                 if (patch != "")
                 {
-                    _proxyList = new List<UserProxy>();
-                    File.ReadAllLines(patch).ToList().ForEach(x => _proxyList.Add(new UserProxy(x)));
-                    if (_proxyList.Count > 500)
-                        for (var i = 0; i < 499; i++)
-                            listBox1.Items.Add(_proxyList[i].ToString());
-                    else
-                        _proxyList.ForEach(x => listBox1.Items.Add(x.ToString()));
-                    label1.Text = $"Загрузилось: {_proxyList.Count}";
+                    _proxyList = GetProxy(patch);
+                    if (_proxyList != null)
+                    {
+                        if (_proxyList.Count > 500)
+                            for (var i = 0; i < 499; i++)
+                                listBox1.Items.Add(_proxyList[i].ToString());
+                        else
+                            _proxyList.ForEach(x => listBox1.Items.Add(x.ToString()));
+                        label1.Text = $"Загрузилось: {_proxyList.Count}";
+                    }
                 }
             }
 
@@ -110,6 +105,20 @@ namespace ProxyChecker
                 )
             {
                 listBox3.Items.Add(exception.Message + "  \n ProxyInputFail");
+            }
+        }
+
+        private List<UserProxy> GetProxy(string patch)
+        {
+            var proxylist = new List<UserProxy>();
+            try
+            {
+                File.ReadAllText(patch).Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries).ToList().ForEach(x => proxylist.Add(new UserProxy(x)));
+                return proxylist;
+            }
+            catch (Exception)
+            {
+                return null;
             }
         }
 
@@ -426,11 +435,6 @@ namespace ProxyChecker
 
         #endregion
 
-        private void buttonStopAddWiewers_Click(object sender, EventArgs e)
-        {
-            _windsUp = false;
-        }
-
         private void button2_Click(object sender, EventArgs e)
         {
             _workProxyList?.Clear();
@@ -440,17 +444,19 @@ namespace ProxyChecker
                 var patch = givePatch();
                 if (patch != "")
                 {
-                    _workProxyList = new List<UserProxy>();
-                    File.ReadAllLines(patch).ToList().ForEach(x => _workProxyList.Add(new UserProxy(x)));
-                    _workProxyList.ForEach(x => listBox2.Items.Add(x.ToString()));
-                    label3.Text = $"Загрузилось: {_workProxyList.Count}";
+                    _workProxyList = GetProxy(patch);
+                    if (_workProxyList != null)
+                    {
+                        _workProxyList.ForEach(x => listBox2.Items.Add(x.ToString()));
+                        label3.Text = $"Загрузилось: {_workProxyList.Count}";
+                    }
                 }
             }
             catch (Exception exception)
             {
                 Console.WriteLine(exception.Message + "  \n ProxyInputFail");
             }
-            GC.Collect();
+           // GC.Collect();
         }
 
         private void button3_Click(object sender, EventArgs e)
@@ -463,16 +469,6 @@ namespace ProxyChecker
         {
             listBox2.Items.Clear();
             _workProxyList.Clear();
-        }
-
-        private void button5_Click(object sender, EventArgs e)
-        {
-            var task = new Task(() =>
-            {
-                string url =
-                    $"https://www-cdn.jtvnw.net/swflibs/TwitchPlayer.r1805fdf8cec14e5e658b83faaf6f985233b9432e.swf?channel={textBoxChannelName.Text}&amp;playerType=faceboo";
-            });
-            task.Start();
         }
 
         private void button6_Click(object sender, EventArgs e)
@@ -491,7 +487,7 @@ namespace ProxyChecker
 
         private void showLogButton_Click(object sender, EventArgs e)
         {
-            GC.Collect();
+            //GC.Collect();
             listBox3.Visible = !listBox3.Visible;
             if (listBox3.Visible)
             {
@@ -503,29 +499,9 @@ namespace ProxyChecker
             }
         }
 
-        //private void button9_Click(object sender, EventArgs e)
-        //{
-        //  Task task1= new Task(() =>
-        //  {
-        //      try
-        //    {
-        //        OpenFileDialog ofd = new OpenFileDialog();
-        //        if (ofd.ShowDialog() == DialogResult.OK)
-        //        {
-        //            _inputPatch = ofd.FileName;
-        //             System.IO.File.ReadAllLines(_inputPatch).ToList().ForEach(x => _proxyList.Add(new UserProxy(x)));
-        //            _proxyList.ForEach(x => listBox1.Items.Add(x.ToString()));
-        //            label1.Text = $"Загрузилось: {_proxyList.Count}";
-        //        }
-        //    }
-        //    catch (Exception exception)
-        //    {
-        //        listBox3.Items.Add(exception.Message + "  \n ProxyInputFail");
-        //    }
-        //  });
-        //    task1.RunSynchronously();
-        //    GC.Collect();
-
-        //}
+        private void trackBar1_Scroll(object sender, EventArgs e)
+        {
+            labelTrackBar.Text = trackBar1.Value.ToString();
+        }
     }
 }

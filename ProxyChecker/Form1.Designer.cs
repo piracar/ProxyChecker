@@ -53,6 +53,11 @@
             this.button8 = new System.Windows.Forms.Button();
             this.label6 = new System.Windows.Forms.Label();
             this.showLogButton = new System.Windows.Forms.Button();
+            this.splitter1 = new System.Windows.Forms.Splitter();
+            this.trackBar1 = new System.Windows.Forms.TrackBar();
+            this.label7 = new System.Windows.Forms.Label();
+            this.labelTrackBar = new System.Windows.Forms.Label();
+            ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
             this.SuspendLayout();
             // 
             // label1
@@ -167,7 +172,6 @@
             this.buttonStopAddWiewers.TabIndex = 13;
             this.buttonStopAddWiewers.Text = "Остановить накрутку";
             this.buttonStopAddWiewers.UseVisualStyleBackColor = true;
-            this.buttonStopAddWiewers.Click += new System.EventHandler(this.buttonStopAddWiewers_Click);
             // 
             // button2
             // 
@@ -207,7 +211,6 @@
             this.button5.TabIndex = 18;
             this.button5.Text = "Положить логи в сайт";
             this.button5.UseVisualStyleBackColor = true;
-            this.button5.Click += new System.EventHandler(this.button5_Click);
             // 
             // listBox4
             // 
@@ -294,11 +297,51 @@
             this.showLogButton.UseVisualStyleBackColor = true;
             this.showLogButton.Click += new System.EventHandler(this.showLogButton_Click);
             // 
+            // splitter1
+            // 
+            this.splitter1.Location = new System.Drawing.Point(0, 0);
+            this.splitter1.Name = "splitter1";
+            this.splitter1.Size = new System.Drawing.Size(3, 601);
+            this.splitter1.TabIndex = 28;
+            this.splitter1.TabStop = false;
+            // 
+            // trackBar1
+            // 
+            this.trackBar1.Location = new System.Drawing.Point(128, 25);
+            this.trackBar1.Maximum = 10000;
+            this.trackBar1.Minimum = 1500;
+            this.trackBar1.Name = "trackBar1";
+            this.trackBar1.Size = new System.Drawing.Size(186, 45);
+            this.trackBar1.TabIndex = 29;
+            this.trackBar1.Value = 1500;
+            this.trackBar1.Scroll += new System.EventHandler(this.trackBar1_Scroll);
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(126, 9);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(50, 13);
+            this.label7.TabIndex = 30;
+            this.label7.Text = "Таймаут";
+            // 
+            // labelTrackBar
+            // 
+            this.labelTrackBar.AutoSize = true;
+            this.labelTrackBar.Location = new System.Drawing.Point(306, 34);
+            this.labelTrackBar.Name = "labelTrackBar";
+            this.labelTrackBar.Size = new System.Drawing.Size(0, 13);
+            this.labelTrackBar.TabIndex = 31;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(665, 601);
+            this.ClientSize = new System.Drawing.Size(664, 601);
+            this.Controls.Add(this.labelTrackBar);
+            this.Controls.Add(this.label7);
+            this.Controls.Add(this.trackBar1);
+            this.Controls.Add(this.splitter1);
             this.Controls.Add(this.showLogButton);
             this.Controls.Add(this.label6);
             this.Controls.Add(this.button8);
@@ -326,6 +369,7 @@
             this.Controls.Add(this.label1);
             this.Name = "Form1";
             this.Text = "Form1";
+            ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -358,6 +402,10 @@
         private System.Windows.Forms.Button button8;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Button showLogButton;
+        private System.Windows.Forms.Splitter splitter1;
+        private System.Windows.Forms.TrackBar trackBar1;
+        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.Label labelTrackBar;
     }
 }
 
